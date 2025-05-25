@@ -90,38 +90,28 @@ class NovaApp {
     }
     
     initSmoothScroll() {
-        // Smooth scroll with mouse wheel
-        let scrollTimeout;
-        let scrolling = false;
+        // Remove the wheel event override - let browser handle native scrolling
+        // This was causing the choppy scroll issue
         
-        const smoothScroll = (e) => {
-            if (scrolling) return;
-            
-            e.preventDefault();
-            scrolling = true;
-            
-            const delta = e.deltaY;
-            const scrollAmount = delta * 0.8;
-            
-            gsap.to(window, {
-                scrollTo: window.scrollY + scrollAmount,
-                duration: 0.5,
-                ease: 'power2.out',
-                onComplete: () => {
-                    scrolling = false;
+        // Just enhance anchor link scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href !== '#' && href.length > 1) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const offset = 80; // Header height
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             });
-            
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                scrolling = false;
-            }, 500);
-        };
-        
-        // Only enable on desktop
-        if (!('ontouchstart' in window)) {
-            window.addEventListener('wheel', smoothScroll, { passive: false });
-        }
+        });
     }
     
     initForms() {
