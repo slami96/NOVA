@@ -600,6 +600,8 @@ class AnimationController {
 class ParallaxController {
     constructor() {
         this.elements = [];
+        this.ticking = false;
+        this.scrollY = 0;
         this.init();
     }
     
@@ -607,32 +609,34 @@ class ParallaxController {
         // Find all parallax elements
         this.setupParallaxElements();
         
-        // Update on scroll
-        this.update();
+        // Throttled scroll handler
+        window.addEventListener('scroll', () => this.onScroll(), { passive: true });
     }
     
     setupParallaxElements() {
-        // Hero 3D container
+        // Hero 3D container - reduced parallax effect
         this.addElement({
             element: document.querySelector('.hero-3d-container'),
-            speed: 0.5,
+            speed: 0.3, // Reduced from 0.5
             offset: 0
         });
         
-        // Floating elements
-        document.querySelectorAll('.floating-card').forEach(card => {
-            this.addElement({
-                element: card,
-                speed: parseFloat(card.dataset.speed) || 0.5,
-                offset: 0
+        // Floating elements - only on desktop
+        if (window.innerWidth > 768) {
+            document.querySelectorAll('.floating-card').forEach(card => {
+                this.addElement({
+                    element: card,
+                    speed: parseFloat(card.dataset.speed) * 0.3 || 0.2, // Reduced speed
+                    offset: 0
+                });
             });
-        });
+        }
         
-        // Bento items with glow
+        // Bento items with glow - only animate rotation
         document.querySelectorAll('.bento-glow').forEach(glow => {
             this.addElement({
                 element: glow,
-                speed: 0.3,
+                speed: 0.1, // Reduced from 0.3
                 rotation: true
             });
         });
@@ -644,28 +648,38 @@ class ParallaxController {
         }
     }
     
-    update() {
-        const scrollY = window.scrollY;
+    onScroll() {
+        this.scrollY = window.scrollY;
         
+        if (!this.ticking) {
+            requestAnimationFrame(() => this.updateElements());
+            this.ticking = true;
+        }
+    }
+    
+    updateElements() {
         this.elements.forEach(item => {
             if (!item.element) return;
             
-            const rect = item.element.getBoundingClientRect();
             const speed = item.speed || 0.5;
-            const yPos = -(scrollY * speed);
             
             if (item.rotation) {
-                gsap.set(item.element, {
-                    rotation: scrollY * 0.02
+                gsap.to(item.element, {
+                    rotation: this.scrollY * 0.01,
+                    duration: 0.5,
+                    ease: 'none'
                 });
             } else {
-                gsap.set(item.element, {
-                    y: yPos
+                const yPos = -(this.scrollY * speed);
+                gsap.to(item.element, {
+                    y: yPos,
+                    duration: 0.5,
+                    ease: 'none'
                 });
             }
         });
         
-        requestAnimationFrame(() => this.update());
+        this.ticking = false;
     }
 }
 
