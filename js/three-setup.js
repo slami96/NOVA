@@ -109,7 +109,7 @@ class HeroScene extends ThreeScene {
     
     createParticleSystem() {
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 3000;
+        const particlesCount = 1500; // Reduced from 3000
         const positions = new Float32Array(particlesCount * 3);
         const colors = new Float32Array(particlesCount * 3);
         
@@ -142,7 +142,7 @@ class HeroScene extends ThreeScene {
         this.objects.push({
             mesh: this.particleSystem,
             update: (delta) => {
-                this.particleSystem.rotation.y += delta * 0.05;
+                this.particleSystem.rotation.y += delta * 0.02; // Reduced rotation speed
             }
         });
     }
