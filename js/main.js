@@ -2,10 +2,31 @@
 
 class NovaApp {
     constructor() {
+        this.performanceMode = this.checkPerformanceMode();
         this.init();
     }
     
+    checkPerformanceMode() {
+        // Check URL params for performance mode
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('performance') === 'high') {
+            return false; // Full effects
+        }
+        
+        // Auto-detect based on device
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isLowEndDevice = navigator.hardwareConcurrency <= 4;
+        
+        return isMobile || isLowEndDevice;
+    }
+    
     init() {
+        // Apply performance mode
+        if (this.performanceMode) {
+            document.body.classList.add('performance-mode');
+            console.log('Performance mode enabled for better scrolling');
+        }
+        
         // Performance monitoring
         this.initPerformanceMonitoring();
         
