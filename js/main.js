@@ -47,6 +47,9 @@ class NovaApp {
         
         // Service worker for PWA
         this.initServiceWorker();
+        
+        // Initialize product image switcher
+        this.initProductImageSwitcher();
     }
     
     initPerformanceMonitoring() {
@@ -257,6 +260,47 @@ class NovaApp {
                     console.log('Service Worker registration failed:', error);
                 });
         }
+    }
+    
+    initProductImageSwitcher() {
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const productImages = document.querySelectorAll('.product-image');
+        
+        viewButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const view = button.dataset.view;
+                
+                // Update active button
+                viewButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Update active image
+                productImages.forEach(img => img.classList.remove('active'));
+                const targetImage = document.getElementById(`product-${view}`);
+                if (targetImage) {
+                    targetImage.classList.add('active');
+                }
+                
+                // Animate the change
+                gsap.fromTo(targetImage, 
+                    { scale: 0.9, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+                );
+            });
+        });
+        
+        // Gallery color changes (if you want to keep this functionality)
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        galleryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Update active state
+                galleryItems.forEach(g => g.classList.remove('active'));
+                item.classList.add('active');
+                
+                // You can add logic here to change the phone image based on color
+                // For now, it just updates the active state
+            });
+        });
     }
 }
 
