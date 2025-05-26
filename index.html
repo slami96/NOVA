@@ -31,8 +31,13 @@
 </head>
 <body data-theme="dark">
     
-    <!-- Custom Cursor -->
-    <!-- Removed custom cursor as requested -->
+    <!-- Intro Video -->
+    <div class="intro-video-container" id="intro-video-container">
+        <video class="intro-video" id="intro-video" muted autoplay playsinline>
+            <source src="nova.mp4" type="video/mp4">
+        </video>
+        <div class="skip-intro-btn" id="skip-intro">Skip Intro</div>
+    </div>
     
     <!-- Loading Screen -->
     <div class="loading-screen" id="loading-screen">
@@ -141,7 +146,7 @@
             </div>
         </div>
         
-        <div class="scroll-indicator">
+        <div class="hero-scroll-indicator">
             <span class="scroll-text">Scroll to explore</span>
             <div class="scroll-arrow">
                 <i class="fas fa-chevron-down"></i>
