@@ -302,59 +302,218 @@ class ProductScene extends ThreeScene {
     createPhone() {
         const group = new THREE.Group();
         
-        // Phone body
-        const bodyGeometry = new THREE.BoxGeometry(0.7, 1.4, 0.08);
-        bodyGeometry.translate(0, 0, 0);
+        // Phone body with rounded corners
+        const shape = new THREE.Shape();
+        const width = 0.7;
+        const height = 1.4;
+        const radius = 0.08;
         
-        // Rounded corners using a custom geometry modifier
+        // Create rounded rectangle shape
+        shape.moveTo(-width/2 + radius, -height/2);
+        shape.lineTo(width/2 - radius, -height/2);
+        shape.quadraticCurveTo(width/2, -height/2, width/2, -height/2 + radius);
+        shape.lineTo(width/2, height/2 - radius);
+        shape.quadraticCurveTo(width/2, height/2, width/2 - radius, height/2);
+        shape.lineTo(-width/2 + radius, height/2);
+        shape.quadraticCurveTo(-width/2, height/2, -width/2, height/2 - radius);
+        shape.lineTo(-width/2, -height/2 + radius);
+        shape.quadraticCurveTo(-width/2, -height/2, -width/2 + radius, -height/2);
+        
+        // Extrude to create 3D phone body
+        const extrudeSettings = {
+            depth: 0.06,
+            bevelEnabled: true,
+            bevelThickness: 0.02,
+            bevelSize: 0.02,
+            bevelSegments: 5
+        };
+        
+        const bodyGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        bodyGeometry.center();
+        
         const bodyMaterial = new THREE.MeshPhysicalMaterial({
             color: this.colors.midnight,
-            metalness: 0.9,
-            roughness: 0.1,
+            metalness: 0.8,
+            roughness: 0.2,
             clearcoat: 1,
             clearcoatRoughness: 0.1,
-            reflectivity: 1
+            reflectivity: 0.8
         });
         
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
         group.add(body);
         
+        // Metal frame
+        const frameGeometry = new THREE.TorusGeometry(0.45, 0.015, 4, 4);
+        const frameMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x888888,
+            metalness: 1,
+            roughness: 0.3
+        });
+        
+        // Create frame edges
+        const frameShape = new THREE.Shape();
+        frameShape.moveTo(-width/2 + radius, -height/2);
+        frameShape.lineTo(width/2 - radius, -height/2);
+        frameShape.quadraticCurveTo(width/2, -height/2, width/2, -height/2 + radius);
+        frameShape.lineTo(width/2, height/2 - radius);
+        frameShape.quadraticCurveTo(width/2, height/2, width/2 - radius, height/2);
+        frameShape.lineTo(-width/2 + radius, height/2);
+        frameShape.quadraticCurveTo(-width/2, height/2, -width/2, height/2 - radius);
+        frameShape.lineTo(-width/2, -height/2 + radius);
+        frameShape.quadraticCurveTo(-width/2, -height/2, -width/2 + radius, -height/2);
+        
+        const framePoints = frameShape.getPoints(50);
+        const frameGeometry2 = new THREE.BufferGeometry().setFromPoints(framePoints);
+        const frameLine = new THREE.Line(frameGeometry2, frameMaterial);
+        frameLine.position.z = 0.04;
+        group.add(frameLine);
+        
         // Screen
-        const screenGeometry = new THREE.PlaneGeometry(0.65, 1.35);
-        const screenMaterial = new THREE.MeshBasicMaterial({
+        const screenGeometry = new THREE.PlaneGeometry(0.64, 1.34);
+        const screenMaterial = new THREE.MeshPhysicalMaterial({
             color: 0x000000,
-            emissive: 0x111111,
-            emissiveIntensity: 0.5
+            metalness: 0,
+            roughness: 0.1,
+            clearcoat: 1,
+            clearcoatRoughness: 0,
+            reflectivity: 0.2
         });
         
         const screen = new THREE.Mesh(screenGeometry, screenMaterial);
         screen.position.z = 0.041;
         group.add(screen);
         
-        // Camera module
-        const cameraGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.02);
-        cameraGeometry.rotateX(Math.PI / 2);
-        const cameraMaterial = new THREE.MeshPhysicalMaterial({
+        // Screen content (display image)
+        const screenContentGeometry = new THREE.PlaneGeometry(0.62, 1.32);
+        const screenContentMaterial = new THREE.MeshBasicMaterial({
+            color: 0x1a1a2e,
+            emissive: 0x6366f1,
+            emissiveIntensity: 0.2
+        });
+        
+        const screenContent = new THREE.Mesh(screenContentGeometry, screenContentMaterial);
+        screenContent.position.z = 0.042;
+        
+        // Add gradient effect to screen
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+        gradient.addColorStop(0, '#6366f1');
+        gradient.addColorStop(0.5, '#f472b6');
+        gradient.addColorStop(1, '#1a1a2e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 256, 512);
+        
+        // Add some UI elements
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(20, 40, 216, 60);
+        ctx.fillRect(20, 120, 100, 100);
+        ctx.fillRect(136, 120, 100, 100);
+        ctx.fillRect(20, 240, 216, 40);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        screenContent.material.map = texture;
+        screenContent.material.emissive = 0x000000;
+        screenContent.material.emissiveIntensity = 0;
+        
+        group.add(screenContent);
+        
+        // Dynamic Island (notch)
+        const notchGeometry = new THREE.CapsuleGeometry(0.08, 0.12, 4, 8);
+        notchGeometry.rotateZ(Math.PI / 2);
+        const notchMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x000000,
+            metalness: 0.5,
+            roughness: 0.5
+        });
+        
+        const notch = new THREE.Mesh(notchGeometry, notchMaterial);
+        notch.position.set(0, 0.58, 0.045);
+        notch.scale.set(1, 0.6, 1);
+        group.add(notch);
+        
+        // Camera module (iPhone-style)
+        const cameraGroup = new THREE.Group();
+        cameraGroup.position.set(-0.15, 0.48, -0.04);
+        
+        // Camera bump
+        const cameraBumpGeometry = new THREE.BoxGeometry(0.22, 0.22, 0.03);
+        cameraBumpGeometry.translate(0, 0, -0.015);
+        const cameraBumpMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x1a1a2e,
+            metalness: 0.8,
+            roughness: 0.3
+        });
+        const cameraBump = new THREE.Mesh(cameraBumpGeometry, cameraBumpMaterial);
+        cameraGroup.add(cameraBump);
+        
+        // Camera lenses
+        const lensGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.02);
+        lensGeometry.rotateX(Math.PI / 2);
+        const lensMaterial = new THREE.MeshPhysicalMaterial({
             color: 0x222222,
+            metalness: 1,
+            roughness: 0.2
+        });
+        
+        const lens1 = new THREE.Mesh(lensGeometry, lensMaterial);
+        lens1.position.set(-0.05, 0.05, 0);
+        cameraGroup.add(lens1);
+        
+        const lens2 = new THREE.Mesh(lensGeometry, lensMaterial);
+        lens2.position.set(0.05, 0.05, 0);
+        cameraGroup.add(lens2);
+        
+        const lens3 = new THREE.Mesh(lensGeometry, lensMaterial);
+        lens3.position.set(0, -0.05, 0);
+        lens3.scale.set(1.2, 1.2, 1.2);
+        cameraGroup.add(lens3);
+        
+        // Flash
+        const flashGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.01);
+        flashGeometry.rotateX(Math.PI / 2);
+        const flashMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            emissive: 0xffffff,
+            emissiveIntensity: 0.5
+        });
+        const flash = new THREE.Mesh(flashGeometry, flashMaterial);
+        flash.position.set(0.05, -0.05, 0);
+        cameraGroup.add(flash);
+        
+        group.add(cameraGroup);
+        
+        // Side buttons
+        const buttonGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.03);
+        const buttonMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x888888,
             metalness: 1,
             roughness: 0.3
         });
         
-        const camera1 = new THREE.Mesh(cameraGeometry, cameraMaterial);
-        camera1.position.set(-0.15, 0.5, -0.03);
-        group.add(camera1);
+        // Volume buttons
+        const volumeUp = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        volumeUp.position.set(-0.365, 0.2, 0);
+        group.add(volumeUp);
         
-        const camera2 = new THREE.Mesh(cameraGeometry, cameraMaterial);
-        camera2.position.set(0.15, 0.5, -0.03);
-        group.add(camera2);
+        const volumeDown = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        volumeDown.position.set(-0.365, 0.05, 0);
+        group.add(volumeDown);
         
-        const camera3 = new THREE.Mesh(cameraGeometry, cameraMaterial);
-        camera3.position.set(0, 0.35, -0.03);
-        group.add(camera3);
+        // Power button
+        const powerButton = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        powerButton.scale.y = 1.5;
+        powerButton.position.set(0.365, 0.1, 0);
+        group.add(powerButton);
         
-        // Add some detail lights on the screen
-        const screenLight = new THREE.RectAreaLight(0x6366f1, 1, 0.65, 1.35);
-        screenLight.position.set(0, 0, 0.042);
+        // Add subtle glow to screen
+        const screenLight = new THREE.RectAreaLight(0x6366f1, 0.5, 0.6, 1.3);
+        screenLight.position.set(0, 0, 0.05);
         group.add(screenLight);
         
         this.phone = group;
