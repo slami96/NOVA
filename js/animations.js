@@ -10,13 +10,97 @@ CustomEase.create("bounce", "0.68, -0.55, 0.265, 1.55");
 class AnimationController {
     constructor() {
         this.animations = {};
+        this.videoPlayed = false;
         this.init();
     }
     
     init() {
-        // Loading animation
-        this.setupLoadingAnimation();
+        // Check if we need to play video intro
+        this.checkVideoIntro();
+    }
+    
+    checkVideoIntro() {
+        const videoContainer = document.getElementById('intro-video-container');
+        const video = document.getElementById('intro-video');
+        const skipBtn = document.getElementById('skip-intro');
         
+        if (videoContainer && video) {
+            // Hide loading screen immediately
+            const loadingScreen = document.querySelector('.loading-screen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            
+            // Video ended event
+            video.addEventListener('ended', () => {
+                this.hideVideoIntro();
+            });
+            
+            // Skip button
+            skipBtn.addEventListener('click', () => {
+                this.hideVideoIntro();
+            });
+            
+            // Fallback in case video fails to load
+            video.addEventListener('error', () => {
+                this.hideVideoIntro();
+            });
+        } else {
+            // No video, proceed normally
+            this.setupLoadingAnimation();
+        }
+    }
+    
+    hideVideoIntro() {
+        const videoContainer = document.getElementById('intro-video-container');
+        const video = document.getElementById('intro-video');
+        
+        // Fade out video
+        videoContainer.classList.add('fade-out');
+        
+        // Pause video
+        if (video) {
+            video.pause();
+        }
+        
+        // After fade out, hide container and show content
+        setTimeout(() => {
+            videoContainer.classList.add('hidden');
+            this.revealContent();
+        }, 1000);
+    }
+    
+    revealContent() {
+        // Show all hidden elements
+        const elementsToShow = [
+            '.hero-content',
+            '.hero-3d-container',
+            '.site-header',
+            '.nav-dots'
+        ];
+        
+        elementsToShow.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.classList.add('visible');
+            }
+        });
+        
+        // Start 3D scenes
+        if (window.heroScene) {
+            window.heroScene.animate();
+        }
+        
+        // Play intro animation after a short delay
+        setTimeout(() => {
+            this.playIntroAnimation();
+        }, 500);
+        
+        // Setup all other animations
+        this.setupAllAnimations();
+    }
+    
+    setupAllAnimations() {
         // Hero animations
         this.setupHeroAnimations();
         
@@ -35,6 +119,7 @@ class AnimationController {
             onComplete: () => {
                 document.querySelector('.loading-screen').classList.add('loaded');
                 this.playIntroAnimation();
+                this.setupAllAnimations();
             }
         });
         
@@ -79,7 +164,7 @@ class AnimationController {
                 { opacity: 1, y: 0, duration: 0.8, ease: 'smooth' },
                 '-=0.4'
             )
-            .fromTo('.scroll-indicator',
+            .fromTo('.hero-scroll-indicator',
                 { opacity: 0 },
                 { opacity: 1, duration: 1, ease: 'smooth' },
                 '-=0.4'
@@ -382,104 +467,6 @@ class AnimationController {
         });
     }
     
-    setupMagneticCursor() {
-        const cursor = document.getElementById('cursor');
-        const cursorDot = cursor.querySelector('.cursor-dot');
-        const cursorRing = cursor.querySelector('.cursor-ring');
-        const magneticElements = document.querySelectorAll('.magnetic-element');
-        
-        let mouse = { x: 0, y: 0 };
-        let cursorPos = { x: 0, y: 0 };
-        let isHovering = false;
-        
-        // Track mouse position
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        });
-        
-        // Smooth cursor movement
-        const updateCursor = () => {
-            if (!isHovering) {
-                cursorPos.x += (mouse.x - cursorPos.x) * 0.1;
-                cursorPos.y += (mouse.y - cursorPos.y) * 0.1;
-            }
-            
-            gsap.set(cursor, {
-                x: cursorPos.x,
-                y: cursorPos.y
-            });
-            
-            requestAnimationFrame(updateCursor);
-        };
-        
-        updateCursor();
-        
-        // Magnetic effect
-        magneticElements.forEach(element => {
-            element.addEventListener('mouseenter', (e) => {
-                isHovering = true;
-                document.body.classList.add('cursor-hover');
-                
-                const rect = element.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                gsap.to(cursorPos, {
-                    x: centerX,
-                    y: centerY,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
-                
-                gsap.to(element, {
-                    x: (mouse.x - centerX) * 0.2,
-                    y: (mouse.y - centerY) * 0.2,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                isHovering = false;
-                document.body.classList.remove('cursor-hover');
-                
-                gsap.to(element, {
-                    x: 0,
-                    y: 0,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
-            });
-            
-            element.addEventListener('mousemove', (e) => {
-                if (isHovering) {
-                    const rect = element.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-                    
-                    gsap.to(element, {
-                        x: (e.clientX - centerX) * 0.2,
-                        y: (e.clientY - centerY) * 0.2,
-                        duration: 0.3,
-                        ease: 'power2.out'
-                    });
-                }
-            });
-        });
-        
-        // Hide cursor when leaving window
-        document.addEventListener('mouseout', (e) => {
-            if (!e.relatedTarget) {
-                gsap.to(cursor, { opacity: 0, duration: 0.3 });
-            }
-        });
-        
-        document.addEventListener('mouseover', () => {
-            gsap.to(cursor, { opacity: 1, duration: 0.3 });
-        });
-    }
-    
     setupSoundEffects() {
         // Create audio context
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -759,168 +746,4 @@ class TextEffects {
                             if (index < iterations) {
                                 return originalText[index];
                             }
-                            return glitchChars[Math.floor(Math.random() * glitchChars.length)];
-                        })
-                        .join('');
-                    
-                    iterations += 1 / 3;
-                    
-                    if (iterations > originalText.length) {
-                        clearInterval(interval);
-                        element.textContent = originalText;
-                    }
-                }, 30);
-            });
-        });
-    }
-}
-
-// Visual effects for sections
-class VisualEffects {
-    constructor() {
-        this.init();
-    }
-    
-    init() {
-        this.setupCanvasAnimations();
-        this.setupGlowEffects();
-        this.setupRippleEffects();
-    }
-    
-    setupCanvasAnimations() {
-        const visionCanvas = document.getElementById('vision-canvas');
-        if (visionCanvas) {
-            const ctx = visionCanvas.getContext('2d');
-            const width = visionCanvas.width = visionCanvas.offsetWidth;
-            const height = visionCanvas.height = visionCanvas.offsetHeight;
-            
-            // Simple particle system
-            const particles = [];
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    radius: Math.random() * 2 + 1,
-                    opacity: Math.random() * 0.5 + 0.5
-                });
-            }
-            
-            const animate = () => {
-                ctx.clearRect(0, 0, width, height);
-                
-                particles.forEach(particle => {
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    
-                    if (particle.x < 0 || particle.x > width) particle.vx *= -1;
-                    if (particle.y < 0 || particle.y > height) particle.vy *= -1;
-                    
-                    ctx.beginPath();
-                    ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(99, 102, 241, ${particle.opacity})`;
-                    ctx.fill();
-                });
-                
-                // Draw connections
-                particles.forEach((p1, i) => {
-                    particles.slice(i + 1).forEach(p2 => {
-                        const distance = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                        if (distance < 100) {
-                            ctx.beginPath();
-                            ctx.moveTo(p1.x, p1.y);
-                            ctx.lineTo(p2.x, p2.y);
-                            ctx.strokeStyle = `rgba(99, 102, 241, ${0.2 * (1 - distance / 100)})`;
-                            ctx.stroke();
-                        }
-                    });
-                });
-                
-                requestAnimationFrame(animate);
-            };
-            
-            animate();
-        }
-    }
-    
-    setupGlowEffects() {
-        // Pulsing glow for active elements
-        const glowElements = document.querySelectorAll('.icon-glow, .marker-glow, .btn-glow');
-        
-        glowElements.forEach(element => {
-            gsap.to(element, {
-                scale: 1.2,
-                opacity: 0.6,
-                duration: 2,
-                ease: 'sine.inOut',
-                repeat: -1,
-                yoyo: true
-            });
-        });
-    }
-    
-    setupRippleEffects() {
-        // Add ripple effect to buttons
-        document.querySelectorAll('.btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const rect = button.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const ripple = document.createElement('div');
-                ripple.className = 'ripple';
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-                
-                button.appendChild(ripple);
-                
-                gsap.fromTo(ripple,
-                    { width: 0, height: 0, opacity: 1 },
-                    {
-                        width: 200,
-                        height: 200,
-                        opacity: 0,
-                        duration: 0.6,
-                        ease: 'power2.out',
-                        onComplete: () => ripple.remove()
-                    }
-                );
-            });
-        });
-    }
-}
-
-// Initialize everything when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize animation controller
-    const animationController = new AnimationController();
-    
-    // Initialize parallax
-    const parallaxController = new ParallaxController();
-    
-    // Initialize text effects
-    const textEffects = new TextEffects();
-    
-    // Initialize visual effects
-    const visualEffects = new VisualEffects();
-    
-    // Update scroll progress
-    window.addEventListener('scroll', () => {
-        animationController.updateScrollProgress();
-    });
-    
-    // Initial scroll check
-    animationController.updateScrollProgress();
-    
-    // Refresh ScrollTrigger on window resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            ScrollTrigger.refresh();
-        }, 250);
-    });
-});
+                            return glitchChars[Math.
