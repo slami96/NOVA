@@ -52,7 +52,6 @@
     --transition-slower: 1s ease;
     
     /* Z-Index */
-    --z-cursor: 9999;
     --z-loading: 9998;
     --z-header: 1000;
     --z-modal: 2000;
@@ -89,57 +88,6 @@ body {
 body[data-theme="light"] {
     background-color: var(--light-bg);
     color: var(--light-text);
-}
-
-/* ===== Custom Cursor ===== */
-.cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-    z-index: var(--z-cursor);
-    mix-blend-mode: difference;
-}
-
-.cursor-dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: white;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.2s ease;
-}
-
-.cursor-ring {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 1px solid white;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.3s ease;
-}
-
-.cursor-trail {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.3;
-    transform: translate(-50%, -50%);
-}
-
-body.cursor-hover .cursor-dot {
-    transform: translate(-50%, -50%) scale(2);
-}
-
-body.cursor-hover .cursor-ring {
-    transform: translate(-50%, -50%) scale(2.5);
-    opacity: 0.5;
 }
 
 /* ===== Loading Screen ===== */
