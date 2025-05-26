@@ -746,4 +746,168 @@ class TextEffects {
                             if (index < iterations) {
                                 return originalText[index];
                             }
-                            return glitchChars[Math.
+                            return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                        })
+                        .join('');
+                    
+                    iterations += 1 / 3;
+                    
+                    if (iterations > originalText.length) {
+                        clearInterval(interval);
+                        element.textContent = originalText;
+                    }
+                }, 30);
+            });
+        });
+    }
+}
+
+// Visual effects for sections
+class VisualEffects {
+    constructor() {
+        this.init();
+    }
+    
+    init() {
+        this.setupCanvasAnimations();
+        this.setupGlowEffects();
+        this.setupRippleEffects();
+    }
+    
+    setupCanvasAnimations() {
+        const visionCanvas = document.getElementById('vision-canvas');
+        if (visionCanvas) {
+            const ctx = visionCanvas.getContext('2d');
+            const width = visionCanvas.width = visionCanvas.offsetWidth;
+            const height = visionCanvas.height = visionCanvas.offsetHeight;
+            
+            // Simple particle system
+            const particles = [];
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 2 + 1,
+                    opacity: Math.random() * 0.5 + 0.5
+                });
+            }
+            
+            const animate = () => {
+                ctx.clearRect(0, 0, width, height);
+                
+                particles.forEach(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > height) particle.vy *= -1;
+                    
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(99, 102, 241, ${particle.opacity})`;
+                    ctx.fill();
+                });
+                
+                // Draw connections
+                particles.forEach((p1, i) => {
+                    particles.slice(i + 1).forEach(p2 => {
+                        const distance = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                        if (distance < 100) {
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = `rgba(99, 102, 241, ${0.2 * (1 - distance / 100)})`;
+                            ctx.stroke();
+                        }
+                    });
+                });
+                
+                requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+    }
+    
+    setupGlowEffects() {
+        // Pulsing glow for active elements
+        const glowElements = document.querySelectorAll('.icon-glow, .marker-glow, .btn-glow');
+        
+        glowElements.forEach(element => {
+            gsap.to(element, {
+                scale: 1.2,
+                opacity: 0.6,
+                duration: 2,
+                ease: 'sine.inOut',
+                repeat: -1,
+                yoyo: true
+            });
+        });
+    }
+    
+    setupRippleEffects() {
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                button.appendChild(ripple);
+                
+                gsap.fromTo(ripple,
+                    { width: 0, height: 0, opacity: 1 },
+                    {
+                        width: 200,
+                        height: 200,
+                        opacity: 0,
+                        duration: 0.6,
+                        ease: 'power2.out',
+                        onComplete: () => ripple.remove()
+                    }
+                );
+            });
+        });
+    }
+}
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize animation controller
+    const animationController = new AnimationController();
+    
+    // Initialize parallax
+    const parallaxController = new ParallaxController();
+    
+    // Initialize text effects
+    const textEffects = new TextEffects();
+    
+    // Initialize visual effects
+    const visualEffects = new VisualEffects();
+    
+    // Update scroll progress
+    window.addEventListener('scroll', () => {
+        animationController.updateScrollProgress();
+    });
+    
+    // Initial scroll check
+    animationController.updateScrollProgress();
+    
+    // Refresh ScrollTrigger on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 250);
+    });
+});
