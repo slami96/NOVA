@@ -26,9 +26,6 @@ class AnimationController {
         // Interactive animations
         this.setupInteractiveAnimations();
         
-        // Magnetic cursor
-        this.setupMagneticCursor();
-        
         // Sound effects
         this.setupSoundEffects();
     }
