@@ -223,7 +223,7 @@
         </div>
     </section>
     
-    <!-- Products Section with 3D Showcase -->
+    <!-- Products Section with Image Showcase -->
     <section class="products-section" id="products" data-theme="light">
         <div class="container">
             <div class="section-header">
@@ -235,8 +235,15 @@
             </div>
             
             <div class="product-showcase">
-                <div class="product-3d-container" id="product-3d">
-                    <!-- 3D Product Model -->
+                <div class="product-image-container">
+                    <div class="product-image-wrapper">
+                        <img src="front.png" alt="NOVA X1 Front View" class="product-image active" id="product-front">
+                        <img src="rear.png" alt="NOVA X1 Rear View" class="product-image" id="product-rear">
+                    </div>
+                    <div class="product-view-toggle">
+                        <button class="view-btn active" data-view="front">Front</button>
+                        <button class="view-btn" data-view="rear">Rear</button>
+                    </div>
                 </div>
                 
                 <div class="product-info">
