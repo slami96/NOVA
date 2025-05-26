@@ -266,6 +266,8 @@ class NovaApp {
         const viewButtons = document.querySelectorAll('.view-btn');
         const productImages = document.querySelectorAll('.product-image');
         
+        if (viewButtons.length === 0 || productImages.length === 0) return;
+        
         viewButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const view = button.dataset.view;
@@ -274,22 +276,31 @@ class NovaApp {
                 viewButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 
-                // Update active image
-                productImages.forEach(img => img.classList.remove('active'));
+                // Hide all images first
+                productImages.forEach(img => {
+                    img.classList.remove('active');
+                });
+                
+                // Show the selected image
                 const targetImage = document.getElementById(`product-${view}`);
                 if (targetImage) {
-                    targetImage.classList.add('active');
+                    // Small delay to ensure the hide transition completes
+                    setTimeout(() => {
+                        targetImage.classList.add('active');
+                    }, 50);
+                    
+                    // Animate the change
+                    if (typeof gsap !== 'undefined') {
+                        gsap.fromTo(targetImage, 
+                            { scale: 0.9, opacity: 0 },
+                            { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+                        );
+                    }
                 }
-                
-                // Animate the change
-                gsap.fromTo(targetImage, 
-                    { scale: 0.9, opacity: 0 },
-                    { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
-                );
             });
         });
         
-        // Gallery color changes (if you want to keep this functionality)
+        // Gallery color changes
         const galleryItems = document.querySelectorAll('.gallery-item');
         galleryItems.forEach(item => {
             item.addEventListener('click', () => {
