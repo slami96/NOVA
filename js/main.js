@@ -264,38 +264,36 @@ class NovaApp {
     
     initProductImageSwitcher() {
         const viewButtons = document.querySelectorAll('.view-btn');
-        const productImages = document.querySelectorAll('.product-image');
+        const productFront = document.getElementById('product-front');
+        const productRear = document.getElementById('product-rear');
         
-        if (viewButtons.length === 0 || productImages.length === 0) return;
+        if (viewButtons.length === 0 || !productFront || !productRear) return;
         
         viewButtons.forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
                 const view = button.dataset.view;
                 
                 // Update active button
                 viewButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 
-                // Hide all images first
-                productImages.forEach(img => {
-                    img.classList.remove('active');
-                });
+                // Update images
+                if (view === 'front') {
+                    productFront.classList.add('active');
+                    productRear.classList.remove('active');
+                } else if (view === 'rear') {
+                    productRear.classList.add('active');
+                    productFront.classList.remove('active');
+                }
                 
-                // Show the selected image
-                const targetImage = document.getElementById(`product-${view}`);
-                if (targetImage) {
-                    // Small delay to ensure the hide transition completes
-                    setTimeout(() => {
-                        targetImage.classList.add('active');
-                    }, 50);
-                    
-                    // Animate the change
-                    if (typeof gsap !== 'undefined') {
-                        gsap.fromTo(targetImage, 
-                            { scale: 0.9, opacity: 0 },
-                            { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
-                        );
-                    }
+                // Animate the change if GSAP is loaded
+                if (typeof gsap !== 'undefined') {
+                    const activeImage = view === 'front' ? productFront : productRear;
+                    gsap.fromTo(activeImage, 
+                        { scale: 0.9, opacity: 0 },
+                        { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+                    );
                 }
             });
         });
