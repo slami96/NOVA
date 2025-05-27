@@ -10,97 +10,13 @@ CustomEase.create("bounce", "0.68, -0.55, 0.265, 1.55");
 class AnimationController {
     constructor() {
         this.animations = {};
-        this.videoPlayed = false;
         this.init();
     }
     
     init() {
-        // Check if we need to play video intro
-        this.checkVideoIntro();
-    }
-    
-    checkVideoIntro() {
-        const videoContainer = document.getElementById('intro-video-container');
-        const video = document.getElementById('intro-video');
-        const skipBtn = document.getElementById('skip-intro');
+        // Loading animation
+        this.setupLoadingAnimation();
         
-        if (videoContainer && video) {
-            // Hide loading screen immediately
-            const loadingScreen = document.querySelector('.loading-screen');
-            if (loadingScreen) {
-                loadingScreen.style.display = 'none';
-            }
-            
-            // Video ended event
-            video.addEventListener('ended', () => {
-                this.hideVideoIntro();
-            });
-            
-            // Skip button
-            skipBtn.addEventListener('click', () => {
-                this.hideVideoIntro();
-            });
-            
-            // Fallback in case video fails to load
-            video.addEventListener('error', () => {
-                this.hideVideoIntro();
-            });
-        } else {
-            // No video, proceed normally
-            this.setupLoadingAnimation();
-        }
-    }
-    
-    hideVideoIntro() {
-        const videoContainer = document.getElementById('intro-video-container');
-        const video = document.getElementById('intro-video');
-        
-        // Fade out video
-        videoContainer.classList.add('fade-out');
-        
-        // Pause video
-        if (video) {
-            video.pause();
-        }
-        
-        // After fade out, hide container and show content
-        setTimeout(() => {
-            videoContainer.classList.add('hidden');
-            this.revealContent();
-        }, 1000);
-    }
-    
-    revealContent() {
-        // Show all hidden elements
-        const elementsToShow = [
-            '.hero-content',
-            '.hero-3d-container',
-            '.site-header',
-            '.nav-dots'
-        ];
-        
-        elementsToShow.forEach(selector => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.classList.add('visible');
-            }
-        });
-        
-        // Start 3D scenes
-        if (window.heroScene) {
-            window.heroScene.animate();
-        }
-        
-        // Play intro animation after a short delay
-        setTimeout(() => {
-            this.playIntroAnimation();
-        }, 500);
-        
-        // Setup all other animations
-        this.setupAllAnimations();
-    }
-    
-    setupAllAnimations() {
         // Hero animations
         this.setupHeroAnimations();
         
@@ -110,8 +26,8 @@ class AnimationController {
         // Interactive animations
         this.setupInteractiveAnimations();
         
-        // Sound effects
-        this.setupSoundEffects();
+        // Product video animation
+        this.setupProductVideo();
     }
     
     setupLoadingAnimation() {
@@ -119,7 +35,6 @@ class AnimationController {
             onComplete: () => {
                 document.querySelector('.loading-screen').classList.add('loaded');
                 this.playIntroAnimation();
-                this.setupAllAnimations();
             }
         });
         
@@ -234,6 +149,39 @@ class AnimationController {
                 start: 'top top',
                 end: 'bottom top',
                 scrub: 1
+            }
+        });
+    }
+    
+    setupProductVideo() {
+        const video = document.getElementById('product-video');
+        const videoContainer = document.getElementById('product-video-container');
+        const showcase = document.getElementById('product-showcase');
+        
+        if (!video || !videoContainer) return;
+        
+        let videoPlayed = false;
+        
+        ScrollTrigger.create({
+            trigger: videoContainer,
+            start: 'top center',
+            once: true,
+            onEnter: () => {
+                if (!videoPlayed) {
+                    videoPlayed = true;
+                    video.play();
+                    
+                    video.addEventListener('ended', () => {
+                        gsap.to(videoContainer, {
+                            opacity: 0,
+                            duration: 1,
+                            onComplete: () => {
+                                videoContainer.style.display = 'none';
+                                showcase.classList.add('visible');
+                            }
+                        });
+                    });
+                }
             }
         });
     }
@@ -464,65 +412,6 @@ class AnimationController {
                     { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: 'smooth' }
                 );
             }
-        });
-    }
-    
-    setupSoundEffects() {
-        // Create audio context
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioContext = null;
-        
-        // Initialize audio on first interaction
-        const initAudio = () => {
-            if (!audioContext) {
-                audioContext = new AudioContext();
-            }
-        };
-        
-        document.addEventListener('click', initAudio, { once: true });
-        
-        // Hover sound effect
-        const playHoverSound = () => {
-            if (!audioContext) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
-            
-            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
-        };
-        
-        // Click sound effect
-        const playClickSound = () => {
-            if (!audioContext) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-        };
-        
-        // Add sound to interactive elements
-        document.querySelectorAll('.btn, .nav-link, .nav-dot').forEach(element => {
-            element.addEventListener('mouseenter', playHoverSound);
-            element.addEventListener('click', playClickSound);
         });
     }
     
