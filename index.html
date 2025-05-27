@@ -31,14 +31,6 @@
 </head>
 <body data-theme="dark">
     
-    <!-- Intro Video -->
-    <div class="intro-video-container" id="intro-video-container">
-        <video class="intro-video" id="intro-video" muted autoplay playsinline>
-            <source src="nova.mp4" type="video/mp4">
-        </video>
-        <div class="skip-intro-btn" id="skip-intro">Skip Intro</div>
-    </div>
-    
     <!-- Loading Screen -->
     <div class="loading-screen" id="loading-screen">
         <div class="loading-content">
@@ -211,7 +203,7 @@
                     </div>
                 </div>
                 
-                <div class="bento-item large glass">
+                <div class="bento-item medium glass">
                     <div class="bento-content">
                         <h3>Innovation Lab</h3>
                         <div class="tech-stack">
@@ -228,7 +220,7 @@
         </div>
     </section>
     
-    <!-- Products Section with Image Showcase -->
+    <!-- Products Section with Video and Image Showcase -->
     <section class="products-section" id="products" data-theme="light">
         <div class="container">
             <div class="section-header">
@@ -239,7 +231,15 @@
                 </h2>
             </div>
             
-            <div class="product-showcase">
+            <!-- Product Video -->
+            <div class="product-video-container" id="product-video-container">
+                <video class="product-video" id="product-video" muted playsinline>
+                    <source src="nova.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+            </div>
+            
+            <div class="product-showcase" id="product-showcase">
                 <div class="product-image-container">
                     <div class="product-image-wrapper">
                         <img src="front.png" alt="NOVA X1 Front View" class="product-image active" id="product-front">
@@ -667,3 +667,5 @@
     <script src="js/three-setup.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/main.js"></script>
+</body>
+</html>
