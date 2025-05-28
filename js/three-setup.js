@@ -3,6 +3,8 @@
 class ThreeScene {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
+        if (!this.container) return;
+        
         this.scene = new THREE.Scene();
         this.camera = null;
         this.renderer = null;
@@ -54,6 +56,8 @@ class ThreeScene {
     }
     
     onWindowResize() {
+        if (!this.camera || !this.renderer || !this.container) return;
+        
         this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
@@ -66,6 +70,8 @@ class ThreeScene {
     }
     
     animate() {
+        if (!this.renderer || !this.scene || !this.camera) return;
+        
         requestAnimationFrame(() => this.animate());
         
         const delta = this.clock.getDelta();
@@ -87,6 +93,8 @@ class ThreeScene {
 class HeroScene extends ThreeScene {
     constructor() {
         super('hero-3d');
+        if (!this.container) return;
+        
         this.particleSystem = null;
         this.geometricShapes = [];
         this.setupScene();
@@ -109,7 +117,7 @@ class HeroScene extends ThreeScene {
     
     createParticleSystem() {
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 1500; // Reduced from 3000
+        const particlesCount = 1500;
         const positions = new Float32Array(particlesCount * 3);
         const colors = new Float32Array(particlesCount * 3);
         
@@ -142,7 +150,7 @@ class HeroScene extends ThreeScene {
         this.objects.push({
             mesh: this.particleSystem,
             update: (delta) => {
-                this.particleSystem.rotation.y += delta * 0.02; // Reduced rotation speed
+                this.particleSystem.rotation.y += delta * 0.02;
             }
         });
     }
@@ -276,6 +284,8 @@ class HeroScene extends ThreeScene {
 class NetworkScene extends ThreeScene {
     constructor() {
         super('network-3d');
+        if (!this.container) return;
+        
         this.nodes = [];
         this.connections = [];
         this.setupScene();
@@ -444,14 +454,16 @@ class NetworkScene extends ThreeScene {
 
 // Initialize 3D scenes when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if containers exist
-    if (document.getElementById('hero-3d')) {
-        window.heroScene = new HeroScene();
-    }
-    
-    // ProductScene removed - no longer needed
-    
-    if (document.getElementById('network-3d')) {
-        window.networkScene = new NetworkScene();
-    }
+    // Wait a bit for the page to fully load
+    setTimeout(() => {
+        // Initialize hero scene
+        if (document.getElementById('hero-3d')) {
+            window.heroScene = new HeroScene();
+        }
+        
+        // Initialize network scene
+        if (document.getElementById('network-3d')) {
+            window.networkScene = new NetworkScene();
+        }
+    }, 100);
 });
