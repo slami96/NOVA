@@ -45,9 +45,6 @@ class NovaApp {
         // Device detection
         this.detectDevice();
         
-        // Service worker for PWA
-        this.initServiceWorker();
-        
         // Initialize product image switcher
         this.initProductImageSwitcher();
     }
@@ -248,18 +245,6 @@ class NovaApp {
         if (isChrome) document.body.classList.add('chrome');
         if (isSafari) document.body.classList.add('safari');
         if (isFirefox) document.body.classList.add('firefox');
-    }
-    
-    initServiceWorker() {
-        if ('serviceWorker' in navigator && location.protocol === 'https:') {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('Service Worker registered:', registration);
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        }
     }
     
     initProductImageSwitcher() {
