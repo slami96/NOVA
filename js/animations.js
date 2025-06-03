@@ -1,10 +1,6 @@
 // js/animations.js - GSAP Animation Setup
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin, CustomEase, MotionPathPlugin);
-
-// Custom ease curves
-CustomEase.create("smooth", "0.4, 0, 0.2, 1");
-CustomEase.create("bounce", "0.68, -0.55, 0.265, 1.55");
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
 
 // Animation Controller
 class AnimationController {
@@ -57,31 +53,31 @@ class AnimationController {
         introTimeline
             .fromTo('.hero-badge', 
                 { opacity: 0, y: 20, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'smooth' }
+                { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power2.out' }
             )
             .fromTo('.title-word',
                 { opacity: 0, y: '100%' },
-                { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'smooth' },
+                { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out' },
                 '-=0.4'
             )
             .fromTo('.hero-description',
                 { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.8, ease: 'smooth' },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
                 '-=0.4'
             )
             .fromTo('.hero-cta-group',
                 { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.8, ease: 'smooth' },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
                 '-=0.4'
             )
             .fromTo('.hero-stats',
                 { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.8, ease: 'smooth' },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
                 '-=0.4'
             )
             .fromTo('.hero-scroll-indicator',
                 { opacity: 0 },
-                { opacity: 1, duration: 1, ease: 'smooth' },
+                { opacity: 1, duration: 1, ease: 'power2.out' },
                 '-=0.4'
             );
         
@@ -108,7 +104,7 @@ class AnimationController {
                 scale: 1, 
                 duration: 1, 
                 stagger: 0.2,
-                ease: 'smooth',
+                ease: 'power2.out',
                 delay: 1
             }
         );
@@ -138,8 +134,6 @@ class AnimationController {
             yoyo: true
         });
         
-        // Button glow on hover is handled by CSS
-        
         // Parallax effect for hero content
         gsap.to('.hero-content', {
             y: -100,
@@ -162,6 +156,10 @@ class AnimationController {
         
         let videoPlayed = false;
         
+        // Hide video container initially
+        gsap.set(videoContainer, { opacity: 1 });
+        gsap.set(showcase, { opacity: 0 });
+        
         ScrollTrigger.create({
             trigger: videoContainer,
             start: 'top center',
@@ -169,7 +167,21 @@ class AnimationController {
             onEnter: () => {
                 if (!videoPlayed) {
                     videoPlayed = true;
-                    video.play();
+                    
+                    // Play video
+                    video.play().catch(err => {
+                        console.log('Video autoplay failed:', err);
+                        // If autoplay fails, show the showcase immediately
+                        gsap.to(videoContainer, {
+                            opacity: 0,
+                            duration: 1,
+                            onComplete: () => {
+                                videoContainer.style.display = 'none';
+                                showcase.classList.add('visible');
+                                gsap.to(showcase, { opacity: 1, duration: 1 });
+                            }
+                        });
+                    });
                     
                     video.addEventListener('ended', () => {
                         gsap.to(videoContainer, {
@@ -178,6 +190,7 @@ class AnimationController {
                             onComplete: () => {
                                 videoContainer.style.display = 'none';
                                 showcase.classList.add('visible');
+                                gsap.to(showcase, { opacity: 1, duration: 1 });
                             }
                         });
                     });
@@ -195,7 +208,7 @@ class AnimationController {
                     opacity: 1,
                     y: 0,
                     duration: 1,
-                    ease: 'smooth',
+                    ease: 'power2.out',
                     scrollTrigger: {
                         trigger: header,
                         start: 'top 80%',
@@ -215,7 +228,7 @@ class AnimationController {
                     scale: 1,
                     duration: 0.8,
                     delay: index * 0.1,
-                    ease: 'smooth',
+                    ease: 'power2.out',
                     scrollTrigger: {
                         trigger: item,
                         start: 'top 80%',
@@ -235,7 +248,7 @@ class AnimationController {
                     rotateY: 0,
                     duration: 0.8,
                     delay: index * 0.1,
-                    ease: 'smooth',
+                    ease: 'power2.out',
                     scrollTrigger: {
                         trigger: box,
                         start: 'top 80%',
@@ -255,7 +268,7 @@ class AnimationController {
                     opacity: 1,
                     y: 0,
                     duration: 0.8,
-                    ease: 'smooth',
+                    ease: 'power2.out',
                     scrollTrigger: {
                         trigger: item,
                         start: 'top 80%',
@@ -333,7 +346,7 @@ class AnimationController {
                 // Animate the change
                 gsap.fromTo(card,
                     { scale: 0.95 },
-                    { scale: 1, duration: 0.3, ease: 'bounce' }
+                    { scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
                 );
                 
                 // Trigger feature change animation
@@ -352,7 +365,7 @@ class AnimationController {
                     gsap.to(window, {
                         scrollTo: { y: section, offsetY: 80 },
                         duration: 1.2,
-                        ease: 'smooth'
+                        ease: 'power2.inOut'
                     });
                 }
             });
@@ -367,7 +380,7 @@ class AnimationController {
                     gsap.to(window, {
                         scrollTo: { y: target, offsetY: 80 },
                         duration: 1.2,
-                        ease: 'smooth'
+                        ease: 'power2.inOut'
                     });
                 }
             });
@@ -386,7 +399,7 @@ class AnimationController {
             gsap.to(themeIcon, {
                 rotation: 360,
                 duration: 0.5,
-                ease: 'smooth',
+                ease: 'power2.inOut',
                 onComplete: () => {
                     themeIcon.classList.toggle('fa-moon');
                     themeIcon.classList.toggle('fa-sun');
@@ -409,7 +422,7 @@ class AnimationController {
             if (navMenu.classList.contains('active')) {
                 gsap.fromTo('.nav-link',
                     { opacity: 0, x: -20 },
-                    { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: 'smooth' }
+                    { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: 'power2.out' }
                 );
             }
         });
@@ -422,7 +435,7 @@ class AnimationController {
         
         gsap.fromTo(info,
             { opacity: 0.7, x: -10 },
-            { opacity: 1, x: 0, duration: 0.5, ease: 'smooth' }
+            { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' }
         );
     }
     
@@ -608,7 +621,7 @@ class TextEffects {
                     opacity: 1,
                     duration: 0.8,
                     stagger: 0.05,
-                    ease: 'smooth',
+                    ease: 'power2.out',
                     scrollTrigger: {
                         trigger: element,
                         start: 'top 80%',
