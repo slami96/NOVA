@@ -26,8 +26,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
 </head>
 <body data-theme="dark">
     
@@ -92,6 +90,11 @@
         <div class="hero-3d-container" id="hero-3d"></div>
         
         <div class="hero-content">
+            <div class="hero-badge glass">
+                <span class="badge-text">New Release 2025</span>
+                <div class="badge-glow"></div>
+            </div>
+            
             <h1 class="hero-title">
                 <span class="title-line">
                     <span class="title-word">Experience</span>
@@ -134,6 +137,22 @@
                 <div class="stat-item">
                     <span class="stat-number" data-value="99.9">0</span>
                     <span class="stat-label">% Uptime</span>
+                </div>
+            </div>
+            
+            <!-- Floating Elements -->
+            <div class="floating-elements">
+                <div class="floating-card glass" data-speed="0.5">
+                    <i class="fas fa-rocket"></i>
+                    <span>Blazing Fast</span>
+                </div>
+                <div class="floating-card glass" data-speed="0.3">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure</span>
+                </div>
+                <div class="floating-card glass" data-speed="0.7">
+                    <i class="fas fa-infinity"></i>
+                    <span>Scalable</span>
                 </div>
             </div>
         </div>
@@ -235,6 +254,7 @@
             <div class="product-video-container" id="product-video-container">
                 <video class="product-video" id="product-video" muted playsinline>
                     <source src="nova.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
                 </video>
                 <div class="video-overlay"></div>
             </div>
